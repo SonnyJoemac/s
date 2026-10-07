@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex, nofollow"><title>Arcade</title><link rel="stylesheet" href="/glass.css">
+<style>body{background:radial-gradient(60% 40% at 20% 0,#1b2733,transparent),radial-gradient(50% 40% at 90% 60%,#2b1d33,transparent),#0a0a0c;min-height:100svh}
+main{padding:130px 6vw 8vh;max-width:1200px;margin:auto}h1{font-size:clamp(48px,9vw,110px);letter-spacing:-.04em;line-height:1}.sub{color:var(--mu);font-size:clamp(18px,2vw,24px);margin:12px 0 6vh}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}.tile{padding:30px;border-radius:32px;text-align:left;font:inherit;color:var(--tx);cursor:pointer;min-height:230px;display:flex;flex-direction:column;transition:transform .6s var(--ease),border-color .3s}.tile:hover{transform:translateY(-6px) scale(1.01);border-color:rgba(255,255,255,.3)}
+.ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px;background:var(--gl);border:1px solid var(--bd);margin-bottom:auto}.tile b{font-size:26px;letter-spacing:-.02em;margin-top:22px}.tile span{color:var(--mu);font-size:15px}.hs{margin-top:10px;font-size:13px}
+#play{position:fixed;inset:0;z-index:60;display:none;background:rgba(5,5,8,.8);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);overflow:auto;padding:84px 16px 24px;text-align:center;touch-action:manipulation}#play.on{display:block}
+#stage{max-width:520px;margin:auto}.close{position:fixed;top:16px;right:16px;z-index:70;display:none}.close.on{display:inline-flex}
+.st{display:flex;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}.st div{padding:8px 16px;border-radius:16px;font-size:13px;color:var(--mu)}.st b{display:block;color:var(--tx);font-size:20px}
+canvas{border-radius:20px;background:rgba(0,0,0,.4);border:1px solid var(--bd);max-width:100%;touch-action:none}.pad{display:flex;justify-content:center;gap:8px;margin-top:14px;flex-wrap:wrap}.pad button{width:64px;height:64px;border-radius:20px;border:1px solid var(--bd);background:var(--gl);color:var(--tx);font-size:22px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.note{color:var(--mu);font-size:13px;margin-top:12px}</style></head><body>
+<nav class="nav glass" aria-label="Arcade"><b>Arcade</b><div class="l"><a href="/">Home</a></div><div class="r"><button id="lock" aria-label="Lock" title="Lock">🔒</button></div></nav>
+<main><h1>Arcade.</h1><p class="sub">Games, experiments and things worth building.</p><div class="g" id="g"></div></main>
+<button class="btn glass close" id="x">Close ✕</button><div id="play" role="dialog" aria-modal="true"><div id="stage"></div></div>
+<script>
+const G=[['tetris','Tetris','▦','Stack, clear, repeat.','tetris'],['snake','Snake','〰','Grow without folding.','snake'],['reaction','Reaction','⚡','How fast are you?','reaction']];
+const hs=k=>localStorage.getItem('hs_'+k);
+g.innerHTML=G.map(([k,n,i,d])=>`<button class="tile glass" data-k="${k}"><div class="ic">${i}</div><b>${n}</b><span>${d}</span><span class="hs">Best: ${hs(k)??'—'}</span></button>`).join('');
+let cur;g.onclick=async e=>{const t=e.target.closest('.tile');if(!t)return;const k=t.dataset.k;
+ if(!window.Games||!Games[k])await new Promise((ok,no)=>{const s=document.createElement('script');s.src=`/education/games/${k}.js`;s.onload=ok;s.onerror=no;document.head.appendChild(s)}).catch(()=>location.reload());
+ play.classList.add('on');x.classList.add('on');stage.innerHTML='';cur=Games[k](stage,(v,low)=>{const o=hs(k);if(o==null||(low?v<o:v>o))localStorage.setItem('hs_'+k,v)},hs(k))};
+x.onclick=()=>{cur&&cur();cur=0;play.classList.remove('on');x.classList.remove('on');location.reload()};
+lock.onclick=async()=>{await fetch('/education/logout',{method:'POST'});location.reload()};
+</script></body></html>
